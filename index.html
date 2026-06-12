@@ -1,0 +1,330 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>বাস স্কিন অর্ডার ও ট্র্যাকিং প্ল্যাটফর্ম</title>
+    <link href="https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@400;600&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            --bg-gradient: linear-gradient(135deg, #0f2027, #203a43, #2c5364);
+            --card-bg: rgba(255, 255, 255, 0.06);
+            --border-color: rgba(255, 255, 255, 0.1);
+            --text-color: #fff;
+            --input-bg: rgba(255, 255, 255, 0.08);
+            --sub-text: #e0e0e0;
+        }
+
+        .light-mode {
+            --bg-gradient: linear-gradient(135deg, #e2e8f0, #f8fafc, #cbd5e1);
+            --card-bg: rgba(255, 255, 255, 0.8);
+            --border-color: rgba(0, 0, 0, 0.1);
+            --text-color: #1e293b;
+            --input-bg: rgba(0, 0, 0, 0.05);
+            --sub-text: #475569;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Hind Siliguri', sans-serif; transition: background 0.3s, color 0.3s; }
+        body { background: var(--bg-gradient); min-height: 100vh; display: flex; flex-direction: column; align-items: center; padding: 20px; color: var(--text-color); }
+
+        .top-bar { width: 100%; max-width: 450px; display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; }
+        .theme-btn, .contact-btn { background: var(--card-bg); border: 1px solid var(--border-color); color: var(--text-color); padding: 8px 15px; border-radius: 20px; cursor: pointer; font-size: 14px; text-decoration: none; display: inline-flex; align-items: center; gap: 5px; }
+
+        .ad-space { width: 100%; max-width: 450px; background: rgba(255, 255, 255, 0.05); border: 1px dashed var(--border-color); border-radius: 8px; text-align: center; padding: 10px; color: #aaa; font-size: 12px; margin: 10px 0; min-height: 60px; display: flex; justify-content: center; align-items: center; }
+
+        .container { background: var(--card-bg); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); border: 1px solid var(--border-color); border-radius: 16px; padding: 25px; width: 100%; max-width: 450px; box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.2); margin-bottom: 20px; }
+        h2, h3 { text-align: center; margin-bottom: 20px; font-weight: 600; }
+
+        .input-group { margin-bottom: 15px; }
+        .input-group label { display: block; color: var(--sub-text); margin-bottom: 6px; font-size: 14px; }
+        .input-group input, .input-group select { width: 100%; padding: 11px 15px; background: var(--input-bg); border: 1px solid var(--border-color); border-radius: 8px; color: var(--text-color); font-size: 15px; outline: none; }
+        .input-group input:focus { border-color: #00f2fe; }
+
+        .track-box { display: flex; gap: 10px; }
+        .track-btn { background: linear-gradient(45deg, #11998e, #38ef7d); border: none; padding: 0 15px; border-radius: 8px; color: white; cursor: pointer; font-weight: 600; }
+
+        .status-display { margin-top: 15px; padding: 15px; background: rgba(0,0,0,0.1); border-radius: 8px; border-left: 5px solid #00f2fe; display: none; }
+        .status-badge { display: inline-block; padding: 3px 8px; border-radius: 4px; font-size: 12px; font-weight: 600; color: #fff; margin-top: 5px; }
+
+        .photo-upload-section { background: rgba(0, 0, 0, 0.05); border: 1px solid var(--border-color); border-radius: 10px; padding: 12px; margin-bottom: 15px; }
+        .photo-box { background: rgba(255, 255, 255, 0.02); border: 1px dashed var(--border-color); padding: 8px; border-radius: 6px; margin-bottom: 8px; }
+        .photo-box span { display: block; color: #00f2fe; font-size: 12px; font-weight: 600; }
+        .photo-box input[type="file"] { margin-top: 5px; color: var(--text-color); font-size: 12px; width: 100%; }
+
+        .terms-box { background: rgba(0, 0, 0, 0.1); padding: 10px; border-radius: 8px; font-size: 13px; color: var(--sub-text); margin-bottom: 10px; max-height: 80px; overflow-y: auto; }
+        .radio-group { display: flex; gap: 20px; }
+
+        .submit-btn { width: 100%; padding: 14px; background: linear-gradient(45deg, #00c6ff, #0072ff); border: none; border-radius: 8px; color: white; font-size: 16px; font-weight: 600; cursor: pointer; margin-top: 10px; box-shadow: 0 4px 15px rgba(0, 114, 255, 0.3); }
+        .submit-btn:disabled { background: #4a5568; cursor: not-allowed; }
+
+        /* Modal CSS */
+        .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.6); backdrop-filter: blur(8px); display: flex; justify-content: center; align-items: center; z-index: 999; opacity: 0; pointer-events: none; transition: opacity 0.4s ease; }
+        .modal-overlay.show { opacity: 1; pointer-events: auto; }
+        .success-card { background: var(--bg-gradient); border: 1px solid var(--border-color); border-radius: 20px; padding: 30px; width: 90%; max-width: 400px; text-align: center; box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5); color: #fff; }
+        .success-icon { width: 60px; height: 60px; background: #2ecc71; color: white; border-radius: 50%; display: flex; justify-content: center; align-items: center; font-size: 30px; margin: 0 auto 15px; }
+        .order-id-badge { background: rgba(255,255,255,0.2); padding: 5px 15px; border-radius: 5px; font-size: 18px; font-weight: bold; color: #ffda79; margin: 10px 0; display: inline-block; letter-spacing: 1px; }
+        .close-card-btn { background: #2ecc71; color: white; border: none; padding: 10px 30px; font-size: 15px; font-weight: 600; border-radius: 8px; cursor: pointer; margin-top: 15px; }
+    </style>
+</head>
+<body>
+
+    <div class="top-bar">
+        <button class="theme-btn" id="themeToggle">🌓 মোড পরিবর্তন</button>
+        <a href="https://t.me/your_bot" target="_blank" class="contact-btn">💬 কন্টাক্ট এডমিন</a>
+    </div>
+
+    <div class="ad-space" id="topAdSpace"><p>বিজ্ঞাপন লোড হচ্ছে...</p></div>
+
+    <div class="container">
+        <h3>🔍 লাইভ অর্ডার ট্র্যাকিং</h3>
+        <div class="track-box">
+            <input type="text" id="trackIdInput" placeholder="আপনার অর্ডার আইডি লিখুন (যেমন: #BBL-1234)">
+            <button class="track-btn" id="trackBtn">ট্র্যাক</button>
+        </div>
+        <div class="status-display" id="statusDisplay">
+            <p><strong>আবেদনকারী:</strong> <span id="stName">-</span></p>
+            <p><strong>স্কিনের নাম:</strong> <span id="stSkin">-</span></p>
+            <p><strong>বর্তমান অবস্থা:</strong> <span class="status-badge" id="stBadge">Pending</span></p>
+            <div id="deliveryArea" style="margin-top:10px; display:none;">
+                <p style="color:#38ef7d;">🎉 আপনার স্কিন ফাইল রেডি!</p>
+                <a id="downloadLink" href="#" target="_blank" class="theme-btn" style="background:#38ef7d; color:#000; font-weight:bold; width:100%; text-align:center; display:block; margin-top:5px;">📥 স্কিন ফাইল ডাউনলোড করুন</a>
+            </div>
+        </div>
+    </div>
+
+    <div class="container">
+        <h2>বাস স্কিন অর্ডার ফর্ম</h2>
+        <form id="orderForm">
+            <div class="input-group">
+                <label for="applicantName">আবেদনকারীর ফুল নাম</label>
+                <input type="text" id="applicantName" placeholder="আপনার পুরো নাম লিখুন" required>
+            </div>
+            <div class="input-group">
+                <label for="applicantAddress">আপনার ঠিকানা</label>
+                <input type="text" id="applicantAddress" placeholder="গ্রাম/শহর, জেলা" required>
+            </div>
+            <div class="input-group">
+                <label for="applicantPhone">মোবাইল নম্বর</label>
+                <input type="tel" id="applicantPhone" placeholder="01XXXXXXXXX" required>
+            </div>
+            <div class="input-group">
+                <label for="skinName">যেই স্কিন অর্ডার করবেন সেটির নাম</label>
+                <input type="text" id="skinName" placeholder="যেমন: Hanif, Ena, Shyamoli" required>
+            </div>
+
+            <div class="photo-upload-section">
+                <div class="section-title">বাসের ফটো আপলোড (অটোমেটিক হোস্টিং)</div>
+                <div class="photo-box"><span>ফটো ১:</span><input type="text" id="pLink1" placeholder="অনলাইন লিংক"><input type="file" id="pFile1" accept="image/*"></div>
+                <div class="photo-box"><span>ফটো ২:</span><input type="text" id="pLink2" placeholder="অনলাইন লিংক"><input type="file" id="pFile2" accept="image/*"></div>
+                <div class="photo-box"><span>ফটো ৩:</span><input type="text" id="pLink3" placeholder="অনলাইন লিংক"><input type="file" id="pFile3" accept="image/*"></div>
+                <div class="photo-box"><span>ফটো ৪:</span><input type="text" id="pLink4" placeholder="অনলাইন লিংক"><input type="file" id="pFile4" accept="image/*"></div>
+                <div class="photo-box"><span>ফটো ৫:</span><input type="text" id="pLink5" placeholder="অনলাইন লিংক"><input type="file" id="pFile5" accept="image/*"></div>
+            </div>
+
+            <div class="input-group">
+                <label for="busModel">বাসের স্কিন ক্যাটাগরি</label>
+                <input type="text" id="busModel" placeholder="যেমন: Hino 1J, Scania">
+            </div>
+            <div class="input-group">
+                <label for="gameDetails">কতো নম্বর বাস / ওবিবি কোড এবং গেম ভার্সন</label>
+                <input type="text" id="gameDetails" placeholder="যেমন: Bus No. 05, OBB v3.7.1" required>
+            </div>
+
+            <div class="input-group">
+                <label>ব্যক্তিগত তথ্যাবলী ও শর্তাবলী</label>
+                <div class="terms-box">আমাদের নিয়ম অনুযায়ী আপনার ফাইলগুলো সুরক্ষিত থাকবে।</div>
+                <div class="radio-group">
+                    <label><input type="radio" name="agreement" value="Yes" required> হ্যাঁ</label>
+                    <label><input type="radio" name="agreement" value="No"> না</label>
+                </div>
+            </div>
+
+            <button type="submit" class="submit-btn" id="submitBtn">অর্ডার কনফার্ম করুন</button>
+        </form>
+    </div>
+
+    <div class="ad-space" id="bottomAdSpace"><p>বিজ্ঞাপন লোড হচ্ছে...</p></div>
+
+    <div class="modal-overlay" id="successModal">
+        <div class="success-card">
+            <div class="success-icon">✓</div>
+            <h3>অর্ডার সফল হয়েছে!</h3>
+            <p>আপনার ইউনিক ট্র্যাকিং আইডি নিচে দেওয়া হলো। এটি কপি করে রাখুন:</p>
+            <div class="order-id-badge" id="generatedOrderId">#BBL-0000</div>
+            <p>২৪ ঘণ্টার মধ্যে চেক করে আপনার কাজ শুরু করা হবে।</p>
+            <button class="close-card-btn" id="closeModalBtn">ঠিক আছে</button>
+        </div>
+    </div>
+
+    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-database-compat.js"></script>
+
+    <script>
+        const firebaseConfig = {
+            apiKey: "AIzaSyBpkLoCsDT5STDPAbJLZhGVcitgBSaBvEk",
+            authDomain: "bd-bus-lover-7b3b4.firebaseapp.com",
+            databaseURL: "https://bd-bus-lover-7b3b4-default-rtdb.firebaseio.com",
+            projectId: "bd-bus-lover-7b3b4",
+            storageBucket: "bd-bus-lover-7b3b4.firebasestorage.app",
+            messagingSenderId: "563505587446",
+            appId: "1:563505587446:web:7c6e343d25919736c3f8d7",
+            measurementId: "G-L0DW3Z30NH"
+        };
+
+        firebase.initializeApp(firebaseConfig);
+        const database = firebase.database();
+
+        // 🌗 থিম টগল লজিক
+        const themeToggle = document.getElementById('themeToggle');
+        themeToggle.addEventListener('click', () => {
+            document.body.classList.toggle('light-mode');
+        });
+
+        // 📡 লাইভ অ্যাড রিড লজিক
+        database.ref('site_settings/ads').on('value', (snapshot) => {
+            if (snapshot.exists()) {
+                const adData = snapshot.val();
+                if(adData.topAd) renderAdScript(document.getElementById('topAdSpace'), adData.topAd);
+                if(adData.bottomAd) renderAdScript(document.getElementById('bottomAdSpace'), adData.bottomAd);
+            }
+        });
+
+        function renderAdScript(container, adCode) {
+            container.innerHTML = adCode;
+            const scripts = container.querySelectorAll('script');
+            scripts.forEach((oldScript) => {
+                const newScript = document.createElement('script');
+                Array.from(oldScript.attributes).forEach(attr => newScript.setAttribute(attr.name, attr.value));
+                newScript.innerHTML = oldScript.innerHTML;
+                oldScript.parentNode.replaceChild(newScript, oldScript);
+            });
+        }
+
+        // 🔍 লাইভ ট্র্যাকিং লজিক
+        document.getElementById('trackBtn').addEventListener('click', () => {
+            const trackId = document.getElementById('trackIdInput').value.trim();
+            if(!trackId) return alert("দয়া করে আইডি দিন!");
+
+            database.ref('bus_orders').orderByChild('orderId').equalTo(trackId).once('value', (snapshot) => {
+                const display = document.getElementById('statusDisplay');
+                if(snapshot.exists()){
+                    display.style.display = "block";
+                    snapshot.forEach((child) => {
+                        const data = child.val();
+                        document.getElementById('stName').innerText = data.applicantName;
+                        document.getElementById('stSkin').innerText = data.skinName;
+                        
+                        const badge = document.getElementById('stBadge');
+                        badge.innerText = data.status;
+                        if(data.status === "Pending") badge.style.backgroundColor = "#f39c12";
+                        else if(data.status === "Processing") badge.style.backgroundColor = "#3498db";
+                        else if(data.status === "Approved") badge.style.backgroundColor = "#2ecc71";
+
+                        const deliveryArea = document.getElementById('deliveryArea');
+                        if(data.status === "Approved" && data.deliveryLink) {
+                            deliveryArea.style.display = "block";
+                            document.getElementById('downloadLink').href = data.deliveryLink;
+                        } else {
+                            deliveryArea.style.display = "none";
+                        }
+                    });
+                } else {
+                    alert("দুঃখিত, এই আইডির কোনো অর্ডার পাওয়া যায়নি!");
+                    display.style.display = "none";
+                }
+            });
+        });
+
+        // ⚡ ইমেজ কম্প্রেশন অ্যালগরিদম
+        function compressImageToBlob(file) {
+            return new Promise((resolve) => {
+                if (!file) resolve(null);
+                const reader = new FileReader();
+                reader.readAsDataURL(file);
+                reader.onload = (event) => {
+                    const img = new Image();
+                    img.src = event.target.result;
+                    img.onload = () => {
+                        const canvas = document.createElement('canvas');
+                        let width = img.width; let height = img.height;
+                        if (width > 1000) { height = Math.round((height * 1000) / width); width = 1000; }
+                        canvas.width = width; canvas.height = height;
+                        const ctx = canvas.getContext('2d');
+                        ctx.drawImage(img, 0, 0, width, height);
+                        canvas.toBlob((blob) => resolve(blob), 'image/jpeg', 0.6);
+                    };
+                };
+            });
+        }
+
+        // 🤖 ImgBB হোস্ٹنگ
+        async function uploadToImgBB(imageBlob) {
+            if (!imageBlob) return "";
+            const apiKey = "Ea8284407f0689742946d416020168f6"; 
+            const formData = new FormData();
+            formData.append("image", imageBlob, "bus_photo.jpg");
+            try {
+                const response = await fetch(`https://api.imgbb.com/1/upload?key=${apiKey}`, { method: "POST", body: formData });
+                const data = await response.json();
+                return data.success ? data.data.url : "আপলোড ব্যর্থ";
+            } catch { return "নেটওয়ার্ক ত্রুটি"; }
+        }
+
+        // 📋 ফর্ম সাবমিশন ও র্যান্ডম আইডি জেনারেশন
+        document.getElementById('orderForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            if(document.querySelector('input[name="agreement"]:checked').value === "No") return alert("শর্তাবলী মানতে হবে।");
+
+            const submitBtn = document.getElementById('submitBtn');
+            submitBtn.disabled = true;
+            submitBtn.innerText = "🤖 এআই দ্বারা ফটো হোস্টিং হচ্ছে...";
+
+            const randId = "#BBL-" + Math.floor(1000 + Math.random() * 9000);
+
+            const f1 = document.getElementById('pFile1').files[0];
+            const f2 = document.getElementById('pFile2').files[0];
+            const f3 = document.getElementById('pFile3').files[0];
+            const f4 = document.getElementById('pFile4').files[0];
+            const f5 = document.getElementById('pFile5').files[0];
+
+            const b1 = await compressImageToBlob(f1);
+            const b2 = await compressImageToBlob(f2);
+            const b3 = await compressImageToBlob(f3);
+            const b4 = await compressImageToBlob(f4);
+            const b5 = await compressImageToBlob(f5);
+
+            const l1 = b1 ? await uploadToImgBB(b1) : (document.getElementById('pLink1').value.trim() || "দেওয়া হয়নি");
+            const l2 = b2 ? await uploadToImgBB(b2) : (document.getElementById('pLink2').value.trim() || "দেওয়া হয়নি");
+            const l3 = b3 ? await uploadToImgBB(b3) : (document.getElementById('pLink3').value.trim() || "দেওয়া হয়নি");
+            const l4 = b4 ? await uploadToImgBB(b4) : (document.getElementById('pLink4').value.trim() || "দেওয়া হয়নি");
+            const l5 = b5 ? await uploadToImgBB(b5) : (document.getElementById('pLink5').value.trim() || "দেওয়া হয়নি");
+
+            database.ref('bus_orders').push({
+                orderId: randId,
+                applicantName: document.getElementById('applicantName').value,
+                applicantAddress: document.getElementById('applicantAddress').value,
+                applicantPhone: document.getElementById('applicantPhone').value,
+                skinName: document.getElementById('skinName').value,
+                busModel: document.getElementById('busModel').value,
+                gameDetails: document.getElementById('gameDetails').value,
+                orderTime: new Date().toLocaleString('bn-BD'),
+                status: "Pending",
+                deliveryLink: "",
+                photos: { photo1: l1, photo2: l2, photo3: l3, photo4: l4, photo5: l5 }
+            }).then(() => {
+                document.getElementById('generatedOrderId').innerText = randId;
+                document.getElementById('successModal').classList.add('show');
+                document.getElementById('orderForm').reset();
+            }).finally(() => {
+                submitBtn.disabled = false;
+                submitBtn.innerText = "অর্ডার কনফার্ম করুন";
+            });
+        });
+
+        document.getElementById('closeModalBtn').addEventListener('click', () => {
+            document.getElementById('successModal').classList.remove('show');
+        });
+    </script>
+</body>
+</html>
