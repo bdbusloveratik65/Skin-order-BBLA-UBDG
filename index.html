@@ -196,6 +196,13 @@
             </div>
 
             <div id="unlockSection" style="margin-top:15px; background:rgba(0,0,0,0.3); padding:12px; border-radius:8px; display:none;">
+                
+                <div style="background: rgba(0, 242, 254, 0.1); border: 1px dashed #00f2fe; border-radius: 10px; padding: 12px; text-align: center; margin-bottom: 12px;">
+                    <p style="color: #00f2fe; font-weight: 600; font-size: 13px; margin-bottom: 3px;">bKash / Nagad Personal Number</p>
+                    <div style="font-size: 20px; font-weight: bold; color: #ffda79; letter-spacing: 1px;" id="unlockPaymentNumber">01827404265</div>
+                    <button type="button" id="copyUnlockNumBtn" style="background: #00f2fe; color: #0f2027; border: none; padding: 6px 14px; font-weight: bold; font-size: 12px; border-radius: 5px; cursor: pointer; margin-top: 8px;">📋 Copy Number</button>
+                </div>
+
                 <p style="color:#ffda79; font-size:13px; margin-bottom:8px;">🔒 স্কিনটি ডাউনলোড করতে পেমেন্ট ইনফরমেশন দিয়ে সাবমিট করুন:</p>
                 <div class="input-group">
                     <select id="unlockMethod">
@@ -263,8 +270,15 @@
             </div>
 
             <div class="payment-details-box" id="payNowDetailsBox" style="display: none;">
+                
+                <div style="background: rgba(0, 242, 254, 0.1); border: 1px dashed #00f2fe; border-radius: 10px; padding: 12px; text-align: center; margin-bottom: 15px;">
+                    <p style="color: #00f2fe; font-weight: 600; font-size: 13px; margin-bottom: 3px;">bKash / Nagad Personal Number</p>
+                    <div style="font-size: 20px; font-weight: bold; color: #ffda79; letter-spacing: 1px;" id="paymentNumber">01827404265</div>
+                    <button type="button" id="copyNumBtn" style="background: #00f2fe; color: #0f2027; border: none; padding: 6px 14px; font-weight: bold; font-size: 12px; border-radius: 5px; cursor: pointer; margin-top: 8px;">📋 Copy Number</button>
+                </div>
+
                 <span style="color:#00f2fe;">💳 পেমেন্ট ভেরিফিকেশন তথ্য:</span>
-                <div class="input-group">
+                <div class="input-group" style="margin-top: 8px;">
                     <label>পেমেন্ট মেথড</label>
                     <select id="payMethod">
                         <option value="bKash">bKash (বিকাশ)</option>
@@ -367,17 +381,17 @@
             document.body.classList.toggle('light-mode');
         });
 
-        // 🚨 ইমার্জেন্সি ফিল্ড টগল ডায়নামিক লজিক
+        // 🚨 ইমার্জেন্সি ও পেমেন্ট ফিল্ড টগল ডায়নামিক লজিক
         const isEmergencySelect = document.getElementById('isEmergency');
         const emergencyDaysBox = document.getElementById('emergencyDaysBox');
         const paymentTimingBox = document.getElementById('paymentTimingBox');
-        const paymentTimingSelect = document.getElementById('paymentTiming');
         const payNowDetailsBox = document.getElementById('payNowDetailsBox');
 
         isEmergencySelect.addEventListener('change', function() {
             if (this.value === "Yes") {
                 emergencyDaysBox.style.display = "block";
                 paymentTimingBox.style.display = "block";
+                payNowDetailsBox.style.display = "block"; // ইমার্জেন্সি হলে পেমেন্ট অপশন সবসময় দেখাবে
             } else {
                 emergencyDaysBox.style.display = "none";
                 paymentTimingBox.style.display = "none";
@@ -385,13 +399,42 @@
             }
         });
 
-        paymentTimingSelect.addEventListener('change', function() {
-            if (this.value === "Now" && isEmergencySelect.value === "Yes") {
-                payNowDetailsBox.style.display = "block";
-            } else {
-                payNowDetailsBox.style.display = "none";
-            }
+        // 📋 পেমেন্ট নম্বর কপি লজিক (ফর্মের ভেতরের নম্বর)
+        document.getElementById('copyNumBtn').addEventListener('click', function() {
+            copyTextToClipboard(document.getElementById('paymentNumber').innerText);
         });
+
+        // 📋 পেমেন্ট নম্বর কপি লজিক (ট্র্যাকিং/আনলক পেজের নম্বর)
+        document.getElementById('copyUnlockNumBtn').addEventListener('click', function() {
+            copyTextToClipboard(document.getElementById('unlockPaymentNumber').innerText);
+        });
+
+        function copyTextToClipboard(text) {
+            if (navigator.clipboard && window.isSecureContext) {
+                navigator.clipboard.writeText(text).then(() => {
+                    alert('Number Copied: ' + text);
+                }).catch(() => fallbackCopyText(text));
+            } else {
+                fallbackCopyText(text);
+            }
+        }
+
+        function fallbackCopyText(text) {
+            const textArea = document.createElement("textarea");
+            textArea.value = text;
+            textArea.style.position = "fixed"; 
+            textArea.style.left = "-999999px";
+            document.body.appendChild(textArea);
+            textArea.focus();
+            textArea.select();
+            try {
+                document.execCommand('copy');
+                alert('Number Copied: ' + text);
+            } catch (err) {
+                alert('Failed to copy! Please copy manually: ' + text);
+            }
+            document.body.removeChild(textArea);
+        }
 
         // 📡 অ্যাড লোডার
         database.ref('site_settings/ads').on('value', (snapshot) => {
@@ -587,35 +630,11 @@
             });
         });
 
-        // 🛠️ ১০০% ওয়ার্কিং ফলব্যাক কপি আইডি ফংশন (কপি না হওয়ার সমস্যা ফিক্স করা হয়েছে)
+        // 🛠️ ট্র্যাকিং আইডি কপি বাটন
         document.getElementById('copyIdBtn').addEventListener('click', function() {
             const idText = document.getElementById('generatedOrderId').innerText;
-            
-            if (navigator.clipboard && window.isSecureContext) {
-                navigator.clipboard.writeText(idText).then(() => {
-                    alert('ট্র্যাকিং আইডি কপি হয়েছে: ' + idText);
-                }).catch(() => fallbackCopyTextToClipboard(idText));
-            } else {
-                fallbackCopyTextToClipboard(idText);
-            }
+            copyTextToClipboard(idText);
         });
-
-        function fallbackCopyTextToClipboard(text) {
-            const textArea = document.createElement("textarea");
-            textArea.value = text;
-            textArea.style.position = "fixed"; 
-            textArea.style.left = "-999999px";
-            document.body.appendChild(textArea);
-            textArea.focus();
-            textArea.select();
-            try {
-                document.execCommand('copy');
-                alert('ট্র্যাকিং আইডি কপি হয়েছে: ' + text);
-            } catch (err) {
-                alert('কপি করা সম্ভব হয়নি! দয়া করে ম্যানুয়ালি কপি করুন: ' + text);
-            }
-            document.body.removeChild(textArea);
-        }
 
         document.getElementById('closeModalBtn').addEventListener('click', () => {
             document.getElementById('successModal').classList.remove('show');
